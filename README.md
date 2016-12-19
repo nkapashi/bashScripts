@@ -1,6 +1,6 @@
 # Shell Scripts
 
-A drop off location for various shell scripts.
+A drop off location for various shell scripts. Additional information and description for each shell script can be found below.
 
 ## **Contents:**
 
