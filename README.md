@@ -32,7 +32,23 @@ This is possibly related to https://github.com/Microsoft/BashOnWindows/issues/60
 
 Count the number of rows in MySQL table using SELECT COUNT(*) FROM table query. If the count is above a threshold allow a predefined grace period. Send an alert if the row count is not below the threshold after the grace period has ended.
 
-As this will be run with a scheduler such as cron every x minutes, the script implements a check whether another instance is running. All operations arerecorded in a log file. 
+As this will be run with a scheduler such as cron every x minutes, the script implements a check whether another instance is running. The lock is done by using the **mkdir** command. Stale lock files are cleared by trapping all signal that can be trapped and deleting the directory recursively.
+
+```
+	if mkdir ${WHEREAMI}/${LOCKDIR}; then
+		echo $$ > ${WHEREAMI}/${LOCKDIR}/PID
+		# Clean up after the script is done or stopped. Note signal 9 cannot be trapped.
+		# ref http://www.shelldorado.com/goodcoding/tempfiles.html
+		trap 'rm -rf "$WHEREAMI/$LOCKDIR" >/dev/null 2>&1' 0
+		trap "exit 2" 1 2 3 15
+	else
+		echo `date +"%e-%b-%Y %R:%S %Z"` "Another instance of the script is still running. Quitting..." \
+		>> ${WHEREAMI}/${LOGFILE}
+		exit 1
+	fi
+```
+
+ All operations arerecorded in a log file. 
 
 *Example use case - checking if events stored in a database table are not pilling up.*
 
