@@ -2,13 +2,13 @@
 
 # Shell Scripts
 
-A drop off location for various shell scripts. Additional information and description for each shell script can be found below.
+A drop off location for various bash scripts. Additional information and description for each bash/sh script can be found below.
 
 ## **Contents:**
 
 ------
 
-### ch_ad_pwd.sh
+## **ch_ad_pwd.sh**
 
 Change your Microsoft Active Directory password with SAMBA and some DNS queries. In case you want to use this in Windows 10 bash note the below prerequisites:
 
@@ -28,7 +28,7 @@ This is possibly related to https://github.com/Microsoft/BashOnWindows/issues/60
 
 ------
 
-### **db_count_monitor.sh**
+## **db_count_monitor.sh**
 
 Count the number of rows in MySQL table using SELECT COUNT(*) FROM table query. If the count is above a threshold allow a predefined grace period. Send an alert if the row count is not below the threshold after the grace period has ended.
 
@@ -51,6 +51,52 @@ As this will be run with a scheduler such as cron every x minutes, the script im
  All operations arerecorded in a log file. 
 
 *Example use case - checking if events stored in a database table are not pilling up.*
+
+## **rest_clean_http_sessions.sh**
+
+Query REST API for connected clients to MFT server and disconnect the ones that have a session older than "$pastHours". 
+
+*Example Response Body Element:*
+
+```
+{
+  "session" : [ {
+    "id" : "...",
+    "userName" : "...",
+    "host" : "...",
+    "protocol" : "...",
+    "userClass" : "...",
+    "currentTransferBandwith" : "...",
+    "command" : "...",
+    "sessionCreationTime" : "...",
+    "metadata" : {
+      "links" : {
+      }
+    }
+  }, ... ]
+}
+```
+
+If "*sessionCreationTime*" is older than "$*pastHours*" , a second DELETE request is send with the   session id so the server to terminate the client connection.
+
+The script uses utilities for parsing the JSON that are commonly installed on most Linux distros and Ubuntu Bash on windows/ Git Bash -  curl, GNU date and egrep.  JQ (sed for JSON) or anything similar to it are not used to keep the prerequisites to a minimum.
+
+## **set_ip.sh**
+
+A *bootlocal.sh* script for boot2docker / Tiny Core Linux. 
+
+Configures defined network interfaces with static ip by first killing the dhcp client pid associated with the intrface and then using ifconfig  to set the desired ip address. Suitable in cases where configuring several network interfaces is needed. 
+
+To use the script set the ip address for each interface that needs to have an ip address. Place the below code in /var/lib/boot2docker/bootlocal.sh.
+
+For example to set eth0 and eth1 with static ip addresses:
+
+1. set ETH0 variable to the desired ip address,  do the same for ETH1
+2. change the regex to match only digits from 0 to 1 -  egrep -o "[0-1]"
+3. adjust the NETMASK
+4. place the script in /var/lib/boot2docker/bootlocal.sh
+
+More Information: https://github.com/boot2docker/boot2docker/issues/129
 
 ------
 
